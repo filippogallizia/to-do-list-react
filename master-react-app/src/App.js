@@ -1,37 +1,93 @@
-import React, {Component} from 'react';
+import React, {useState} from 'react';
 import User from "./myItem"
 
 import './App.css';
 
-class App extends Component {
 
-  state = {
-    users: [
-    {name: "joh", age: 40},
-    {name: "filippo", age: 30},
-    {name: "marco", age: 20},
-    ],
+function TodoForm({addTodo}) {
 
+  const [value, setValue] = useState("");
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if(!value) return;
+    addTodo(value);
+    setValue("");
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input
+        type="text"
+        className="input"
+        value={value}
+        onChange={e => setValue(e.target.value)}
+      />
+    </form>
+  )
+}
+
+
+function Todo({ todo, index, completeTodo, removeTodo }) {
+
+  return (
+    <div style={{textDecoration: todo.isCompleted ? "line-through"  : "" }} >
+      {todo.text}
+      <button className="button" onClick={() => completeTodo(index)}>complete</button>
+      <button className="button" onClick={() => removeTodo(index)}>x</button>
+    </div>
+  );
+};
+
+function App() {
+  const [todos, setTodos] = React.useState([
+    {
+      text: "Learn about React",
+      isCompleted: false
+    },
+    {
+      text: "Meet friend for lunch",
+      isCompleted: false
+    },
+    {
+      text: "Build really cool todo app",
+      isCompleted: false
+    }
+  ]);
+
+  const removeTodo = (index) => {
+    const newTodos = [... todos];
+   newTodos.splice(index, 1);
+   setTodos(newTodos);
   }
 
-  deleteUser = (index, e) => {
-    const users = [...this.state.users]
-    users.splice(index, 1);
-    this.setState({users: users})
+  const completeTodo = (index) => {
+   const newTodos = [... todos];
+   newTodos[index].isCompleted = true;
+   setTodos(newTodos); 
   }
 
-  render() {
-    return (
-      <div>
+  const addTodo = (text) => {
+    const newTodos = [... todos, {text}];
+    setTodos(newTodos);
+  }
 
-      <ul>
-        {this.state.users.map((item, index)=> <User value={item.name} age={item.age} delEvent= {() => this.deleteUser(index)}></User>)}
-
-      </ul>
-
+  return (
+    <div className="app">
+      <div className="todo-list">
+        {todos.map((todo, index) => (
+          <Todo
+            key={index}
+            index={index}
+            todo={todo}
+            completeTodo={completeTodo}
+            removeTodo={removeTodo}
+          />
+        ))}
       </div>
-    )
-  }
+      <TodoForm addTodo={addTodo} />
+    </div>
+  );
 }
 
 export default App;
